@@ -115,7 +115,7 @@ function setupDragAndDrop() {
             for (const file of files) {
                 const fileContent = await file.text();
                 const convertedStats = txtToStatsWithFields(fileContent);
-                const newFileName = file.name.replace(/\.txt$/, '.stats');
+                const newFileName = file.name.replace(/\\.txt$/, '.stats');
                 zip.file(newFileName, convertedStats);
             }
 
