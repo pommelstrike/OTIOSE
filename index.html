@@ -3,12 +3,25 @@
 <head>
     <!-- Import Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Display:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Import Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    
+    <!-- Include JSZip Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Metadata -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Convert .stats files to .txt format with OTIOSE for optimized data translation." />
+
+    <!-- Page Title -->
     <title>OTIOSE - Optimized Translation for Instantaneous Output with Seamless Efficiency</title>
-    <script defer src="otiose.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script defer src="otiose_stats_to_txt.js"></script>
+
+    <!-- Styles -->
     <style>
         body {
             font-family: 'Noto Sans Display', sans-serif;
@@ -58,11 +71,11 @@
 <body>
     <header>
         <h1>OTIOSE - Optimized Translation for Instantaneous Output with Seamless Efficiency</h1>
-        <p>Drag and drop your .stats files below to convert them into .txt files. Multiple files are supported, and a .zip archive will be created for download.</p>
+        <p>Drag and drop your .stats files below to convert them into .txt files.</p>
     </header>
     <main>
-        <div id="drop-area" role="button" aria-label="Drag and drop .stats files here">Drag and drop your files here</div>
-        <p class="feedback" id="feedback">Drop .stats files to start processing.</p>
+        <div id="drop-area" role="button" aria-label="Drag and drop files here">Drag and drop your files here</div>
+        <p class="feedback" id="feedback">Drop files to start processing.</p>
         <a id="downloadButton">Download Converted Files</a>
     </main>
     <footer>
