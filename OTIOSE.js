@@ -35,88 +35,59 @@ function valueFilter(value) {
     return StatsData.IgnoreFields.includes(value) ? null : value;
 }
 
-// Function to convert .txt content to .stats (XML format) with nested structures
-function txtToStats(txtContent) {
-    const lines = txtContent.split('\n');
-    let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<stats>\n';
+// Function to convert .txt content to .stats using field definitions
+function txtToStatsWithFields(txtContent) {
+    const statObjectDefinitionId = "e2a8d59b-0e34-4a7c-bf5f-db7a2bb34cde";
+    const lines = txtContent.split("\n");
+    let xmlContent = `<?xml version="1.0" encoding="utf-8"?>\n`;
+    xmlContent += `<stats stat_object_definition_id="${statObjectDefinitionId}">\n`;
+    xmlContent += "  <stat_objects>\n";
+    xmlContent += "    <stat_object is_substat=\"false\">\n";
+    xmlContent += "      <fields>\n";
 
-    // Temporary storage for building object structure
-    let currentObjectName = '';
-    let currentObjectFields = [];
+    const fieldDefinitions = {
+        IntegerTableFieldDefinition: [
+            "Level", "AreaRadius", "ExplodeRadius", "ProjectileDelay", "Lifetime", "SurfaceRadius", "Range"
+        ],
+        StringTableFieldDefinition: ["SpellContainerID", "TooltipDamageList", "DescriptionParams"],
+        TranslatedStringTableFieldDefinition: ["DisplayName", "Description", "ShortDescription"]
+        // Add other field definitions as necessary
+    };
 
     lines.forEach((line) => {
-        if (!line.trim()) return; // Skip empty lines
+        if (line.trim() === "") {
+            xmlContent += "      </fields>\n";
+            xmlContent += "    </stat_object>\n";
+            xmlContent += "    <stat_object is_substat=\"false\">\n";
+            xmlContent += "      <fields>\n";
+            return;
+        }
 
-        const [key, value] = line.split('=');
+        if (line.startsWith("new entry ")) {
+            const value = line.slice(10).trim();
+            xmlContent += `        <field name=\"Name\" type=\"NameTableFieldDefinition\" value=\"${value}\" />\n`;
+        } else if (line.startsWith("data ")) {
+            const parts = line.split('"');
+            const fieldName = parts[1];
+            const fieldValue = parts[3];
 
-        if (key && value) {
-            const trimmedKey = key.trim();
-            const trimmedValue = value.trim();
-
-            if (StatsData.IgnoreFields.includes(trimmedKey)) {
-                // Skip ignored fields
-                return;
+            let fieldType = "StringTableFieldDefinition"; // Default type
+            if (fieldDefinitions.IntegerTableFieldDefinition.includes(fieldName)) {
+                fieldType = "IntegerTableFieldDefinition";
+            } else if (fieldDefinitions.TranslatedStringTableFieldDefinition.includes(fieldName)) {
+                fieldType = "TranslatedStringTableFieldDefinition";
             }
 
-            if (trimmedKey === 'Name') {
-                // Close previous object if it exists
-                if (currentObjectName) {
-                    xmlContent += `  <object name="${currentObjectName}">\n`;
-                    currentObjectFields.forEach(field => {
-                        xmlContent += `    <field name="${field.name}" type="${field.type}" value="${field.value}" />\n`;
-                    });
-                    xmlContent += '  </object>\n';
-                }
-
-                // Start a new object
-                currentObjectName = trimmedValue;
-                currentObjectFields = [];
-            } else {
-                // Determine type of the field based on key
-                let fieldType = 'StringTableFieldDefinition';
-
-                if (!isNaN(trimmedValue)) {
-                    fieldType = 'IntegerTableFieldDefinition';
-                } else if (StatsData.SpellTypes.includes(trimmedKey)) {
-                    fieldType = 'SpellData';
-                } else if (StatsData.StatusTypes.includes(trimmedKey)) {
-                    fieldType = 'StatusData';
-                }
-
-                // Add field to the current object
-                currentObjectFields.push({ name: trimmedKey, type: fieldType, value: trimmedValue });
-            }
+            xmlContent += `        <field name=\"${fieldName}\" type=\"${fieldType}\" value=\"${fieldValue}\" />\n`;
         }
     });
 
-    // Close the last object
-    if (currentObjectName) {
-        xmlContent += `  <object name="${currentObjectName}">\n`;
-        currentObjectFields.forEach(field => {
-            xmlContent += `    <field name="${field.name}" type="${field.type}" value="${field.value}" />\n`;
-        });
-        xmlContent += '  </object>\n';
-    }
+    xmlContent += "      </fields>\n";
+    xmlContent += "    </stat_object>\n";
+    xmlContent += "  </stat_objects>\n";
+    xmlContent += "</stats>\n";
 
-    xmlContent += '</stats>';
     return xmlContent;
-}
-
-function buildStatsHeader(rawDataList) {
-    const header = {};
-
-    rawDataList.forEach((line) => {
-        const [key, value] = line.split('=');
-        if (StatsData.HeaderFields.includes(key.trim())) {
-            header[key.trim()] = value.trim();
-        }
-    });
-
-    return header;
-}
-
-function buildStatsFooter(rawDataList) {
-    return { newline: ['\n'] };
 }
 
 // Function to handle drag-and-drop functionality
@@ -143,8 +114,8 @@ function setupDragAndDrop() {
 
             for (const file of files) {
                 const fileContent = await file.text();
-                const convertedStats = txtToStats(fileContent);
-                const newFileName = file.name.replace(/\\.txt$/, '.stats');
+                const convertedStats = txtToStatsWithFields(fileContent);
+                const newFileName = file.name.replace(/\.txt$/, '.stats');
                 zip.file(newFileName, convertedStats);
             }
 
