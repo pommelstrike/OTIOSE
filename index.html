@@ -66,14 +66,14 @@
     </header>
     <main>
         <div id="drop-area">
-            <p>Drag and drop your .txt file here</p>
+            <p>Drag and drop your .txt files here</p>
         </div>
         <div class="feature-block">
             <h4>How It Works:</h4>
             <ul>
-                <li><strong>Input:</strong> Upload a .txt file.</li>
-                <li><strong>Process:</strong> The file is converted to a .stats file in XML format.</li>
-                <li><strong>Output:</strong> Download the processed .stats file.</li>
+                <li><strong>Input:</strong> Upload .txt files, one or more at a time.</li>
+                <li><strong>Process:</strong> Each file is converted to a .stats file in XML format.</li>
+                <li><strong>Output:</strong> Download all processed .stats files as a .zip.</li>
             </ul>
         </div>
     </main>
@@ -81,11 +81,6 @@
         <p>Made with precision by OTIOSE Development Team</p>
     </footer>
 
-    <script type="module">
-        import { setupDragAndDrop } from './OTIOSE.js';
-
-        // Initialize drag-and-drop functionality
-        setupDragAndDrop();
-    </script>
+    <script defer src="OTIOSE.js"></script>
 </body>
 </html>
